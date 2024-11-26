@@ -94,6 +94,7 @@ fun QRButton(onScanClick: () -> Unit) {
     }
 }
 
+
 @Composable
 fun QRResultDialog(result: String, onEditClick: () -> Unit) {
     var modelo by remember { mutableStateOf("") }
@@ -104,6 +105,7 @@ fun QRResultDialog(result: String, onEditClick: () -> Unit) {
     var cedula by remember { mutableStateOf("") }
     var showConfirmationDialog by remember { mutableStateOf(false) }
     var showEditConfirmation by remember { mutableStateOf(false) }
+    var newScanResult by remember { mutableStateOf("") }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -179,9 +181,28 @@ fun QRResultDialog(result: String, onEditClick: () -> Unit) {
                 OutlinedTextField(value = personaAsignada, onValueChange = { personaAsignada = it }, label = { Text("Persona Asignada") }, modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(value = cedula, onValueChange = { cedula = it }, label = { Text("Cédula") }, modifier = Modifier.fillMaxWidth())
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+
             }
         },
         confirmButton = {
+            // Botón Escanear
+            Button(onClick = {
+                // Limpiar los campos y realizar el nuevo escaneo
+                modelo = ""
+                serie = ""
+                marca = ""
+                nombreActivo = ""
+                personaAsignada = ""
+                cedula = ""
+                newScanResult = "" // Resetear el resultado del escaneo anterior
+                onEditClick() // Llamar al método que inicia el escaneo nuevamente
+            }) {
+                Text("salir")
+            }
+
             Button(onClick = {
                 coroutineScope.launch {
                     try {
@@ -212,6 +233,7 @@ fun QRResultDialog(result: String, onEditClick: () -> Unit) {
         }
     )
 }
+
 
 
 data class Activo(
