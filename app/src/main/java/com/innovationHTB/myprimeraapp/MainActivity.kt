@@ -20,6 +20,9 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.POST
+
 
 class MainActivity : ComponentActivity() {
     private var qrResult by mutableStateOf("")
@@ -160,7 +163,28 @@ fun QRResultDialog(result: String, onEditClick: () -> Unit) {
             }
         },
         confirmButton = {
-            Button(onClick = onEditClick) {
+            Button(onClick = {
+                coroutineScope.launch {
+                    try {
+                        val activoRequest = ActivoRequest(
+                            modelo = modelo,
+                            serie = serie,
+                            marca = marca,
+                            nombre_del_activo = nombreActivo,
+                            persona_asignada = personaAsignada,
+                            cedula = cedula
+                        )
+                        val response = RetrofitInstance.apiService.updateActivo(result, activoRequest)
+                        if (response.isSuccessful) {
+                            Log.d("QRResultDialog", "Activo actualizado correctamente")
+                        } else {
+                            Log.e("QRResultDialog", "Error al actualizar el activo")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("QRResultDialog", "Excepción: ${e.message}")
+                    }
+                }
+            }) {
                 Text("Editar")
             }
         }
@@ -176,9 +200,24 @@ data class Activo(
     val cedula: String
 )
 
+data class ActivoRequest(
+    val modelo: String,
+    val serie: String,
+    val marca: String,
+    val nombre_del_activo: String,
+    val persona_asignada: String,
+    val cedula: String
+)
+
 interface ApiService {
     @GET("activos_auditoria.php")
     suspend fun getActivo(@Query("id") id: String): Activo
+
+    @POST("activos_auditoria.php?action=update")
+    suspend fun updateActivo(
+        @Query("id") id: String,
+        @Body activo: ActivoRequest
+    ): retrofit2.Response<Unit>
 }
 
 object RetrofitInstance {
