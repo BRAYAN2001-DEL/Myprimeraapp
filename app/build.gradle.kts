@@ -71,6 +71,11 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.zxing)
     implementation(libs.androidx.lifecycle.runtime.ktx)  // ya está definido
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+    implementation(libs.coroutines)
 
 
 
