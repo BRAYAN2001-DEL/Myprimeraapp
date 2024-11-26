@@ -2,6 +2,7 @@ package com.innovationHTB.myprimeraapp
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.innovationHTB.myprimeraapp.ui.theme.MyPrimeraAppTheme
@@ -100,8 +102,22 @@ fun QRResultDialog(result: String, onEditClick: () -> Unit) {
     var nombreActivo by remember { mutableStateOf("") }
     var personaAsignada by remember { mutableStateOf("") }
     var cedula by remember { mutableStateOf("") }
+    var showConfirmationDialog by remember { mutableStateOf(false) }
+    var showEditConfirmation by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
+
+    // Mostrar mensaje de confirmación después de buscar
+    if (showConfirmationDialog) {
+        Toast.makeText(LocalContext.current, "Datos encontrados", Toast.LENGTH_SHORT).show()
+        showConfirmationDialog = false // Resetear para que no se muestre repetidamente
+    }
+
+    // Mostrar mensaje de confirmación después de editar
+    if (showEditConfirmation) {
+        Toast.makeText(LocalContext.current, "Datos actualizados correctamente", Toast.LENGTH_SHORT).show()
+        showEditConfirmation = false // Resetear para que no se muestre repetidamente
+    }
 
     AlertDialog(
         onDismissRequest = { },
@@ -138,6 +154,9 @@ fun QRResultDialog(result: String, onEditClick: () -> Unit) {
                                 personaAsignada = activo.persona_asignada
                                 cedula = activo.cedula
                                 Log.d("QRResultDialog", "Datos recibidos: $activo")
+
+                                // Mostrar confirmación de que los datos fueron encontrados
+                                showConfirmationDialog = true
 
                             } catch (e: Exception) {
                                 Log.e("QRResultDialog", "Error al obtener datos: ${e.message}")
@@ -177,6 +196,9 @@ fun QRResultDialog(result: String, onEditClick: () -> Unit) {
                         val response = RetrofitInstance.apiService.updateActivo(result, activoRequest)
                         if (response.isSuccessful) {
                             Log.d("QRResultDialog", "Activo actualizado correctamente")
+
+                            // Mostrar confirmación de que los datos fueron actualizados
+                            showEditConfirmation = true
                         } else {
                             Log.e("QRResultDialog", "Error al actualizar el activo")
                         }
@@ -190,6 +212,7 @@ fun QRResultDialog(result: String, onEditClick: () -> Unit) {
         }
     )
 }
+
 
 data class Activo(
     val modelo: String,
